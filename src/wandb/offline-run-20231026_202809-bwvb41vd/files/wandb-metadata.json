@@ -1,0 +1,47 @@
+{
+    "os": "macOS-14.0-arm64-arm-64bit",
+    "python": "3.9.18",
+    "heartbeatAt": "2023-10-27T00:28:09.191175",
+    "startedAt": "2023-10-27T00:28:09.153848",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--train",
+        "--model_name",
+        "csaw-m_multi_hot_final_run_1",
+        "--loss_type",
+        "multi_hot",
+        "--train_folder",
+        "/Users/trs/Desktop/ML_Workspace/14687271/images/preprocessed/train",
+        "--train_csv",
+        "/Users/trs/Desktop/ML_Workspace/14687271/labels/CSAW-M_train.csv",
+        "--checkpoints_path",
+        "/Users/trs/Desktop/ML_Workspace/14687271/CSAW-M-review_checkpoints",
+        "--n_epochs",
+        "40",
+        "--gpu_id",
+        "7"
+    ],
+    "state": "running",
+    "program": "/Users/trs/Desktop/ML_Workspace/src/main.py",
+    "codePathLocal": "main.py",
+    "codePath": "main.py",
+    "host": "Thomass-MBP.lan",
+    "username": "trs",
+    "executable": "/Users/trs/Desktop/ML_Workspace/.venv/bin/python3",
+    "cpu_count": 10,
+    "cpu_count_logical": 10,
+    "disk": {
+        "/": {
+            "total": 926.3517189025879,
+            "used": 9.147651672363281
+        }
+    },
+    "gpuapple": {
+        "type": "arm",
+        "vendor": "Apple"
+    },
+    "memory": {
+        "total": 32.0
+    }
+}
