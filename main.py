@@ -4,6 +4,7 @@ from Models.KNN import KNNTrain
 from Models.RBFSVR import SVMRBFTrain
 from Models.RandomForest import RadomForestTrain
 from Models.GradientBoost import GradientBoostTrain
+from Models.AdaBoost import AdaBoostTrain
 
 train_path = '14687271/labels/CSAW-M_train.csv'
 test_path = '14687271/labels/CSAW-M_test.csv'
@@ -31,6 +32,7 @@ data_object = {'X_train':X_train, 'X_test':X_test, 'y_train':y_train, 'y_test':y
 #print(KNNTrain(**data_object))
 #print(SVMRBFTrain(**data_object))
 #print(RadomForestTrain(**data_object))
-print(GradientBoostTrain(**data_object))
+#print(GradientBoostTrain(**data_object))
+print(AdaBoostTrain(**data_object))
 #SVMTrain()
 #RandomForrestTrain()
