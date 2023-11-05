@@ -2,6 +2,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn import metrics
 import scipy.stats as stats
 import statistics
+import numpy as np
 
 # Function to train Random Forest regressor and output its Tau and MAE.
 def RadomForestTrain(**kwargs):
@@ -23,7 +24,7 @@ def RadomForestTrain(**kwargs):
         epoch_lowest_tau = 0
 
         regr = RandomForestRegressor(random_state=0)
-        regr.fit(X_train, y_train)     
+        regr.fit(X_train, np.ravel(y_train))     
         y_pred = regr.predict(X_test)  
 
         if metrics.mean_absolute_error(y_test,y_pred) < epoch_lowest_MAE:
