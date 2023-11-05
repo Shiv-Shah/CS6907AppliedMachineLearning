@@ -1,5 +1,6 @@
 
 import pandas as pd 
+from Utility.ProgressBar import progressBar
 from Models.KNN import KNNTrain
 from Models.RBFSVR import SVMRBFTrain
 from Models.RandomForest import RadomForestTrain
@@ -24,15 +25,14 @@ y_test = df.loc[:, ['Label']]
 # Pack Test and Train Data into data object
 data_object = {'X_train':X_train, 'X_test':X_test, 'y_train':y_train, 'y_test':y_test}
 
-
-
-
-    
-
-#print(KNNTrain(**data_object))
-#print(SVMRBFTrain(**data_object))
-#print(RadomForestTrain(**data_object))
-#print(GradientBoostTrain(**data_object))
-print(AdaBoostTrain(**data_object))
-#SVMTrain()
-#RandomForrestTrain()
+# Run models
+KNNTrain(**data_object)
+progressBar(1,5)
+SVMRBFTrain(**data_object)
+progressBar(2,5)
+RadomForestTrain(**data_object)
+progressBar(3,5)
+GradientBoostTrain(**data_object)
+progressBar(4,5)
+AdaBoostTrain(**data_object)
+progressBar(5,5)
