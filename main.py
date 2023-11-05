@@ -19,6 +19,7 @@ df.dropna()
 X_test = df.loc[:, ['Libra_percent_density','Libra_dense_area','Libra_breast_area']]
 y_test = df.loc[:, ['Label']]
 
+# Pack Test and Train Data into data object
 data_object = {'X_train':X_train, 'X_test':X_test, 'y_train':y_train, 'y_test':y_test}
 
 
