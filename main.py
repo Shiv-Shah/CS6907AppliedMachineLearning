@@ -26,13 +26,14 @@ y_test = df.loc[:, ['Label']]
 data_object = {'X_train':X_train, 'X_test':X_test, 'y_train':y_train, 'y_test':y_test}
 
 # Run models
+progressBar(0,5, ' KNN Training')
 KNNTrain(**data_object)
-progressBar(1,5)
+progressBar(1,5, ' SVM RBF Training')
 SVMRBFTrain(**data_object)
-progressBar(2,5)
+progressBar(2,5, ' Random Forest Training')
 RadomForestTrain(**data_object)
-progressBar(3,5)
+progressBar(3,5, ' Gradient Boost Training')
 GradientBoostTrain(**data_object)
-progressBar(4,5)
+progressBar(4,5, ' Ada Boost Training')
 AdaBoostTrain(**data_object)
 progressBar(5,5)
