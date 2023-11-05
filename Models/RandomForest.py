@@ -1,5 +1,10 @@
-# Function to train a SVM RBF regressor and output its Tau and MAE.
-def SVMRBFTrain(**kwargs):
+from sklearn.ensemble import RandomForestRegressor
+from sklearn import metrics
+import scipy.stats as stats
+import statistics
+
+# Function to train Random Forest regressor and output its Tau and MAE.
+def RadomForestTrain(**kwargs):
     # Unpack kwargs
     X_train = kwargs['X_train']
     y_train = kwargs['y_train']
@@ -35,5 +40,5 @@ def SVMRBFTrain(**kwargs):
     MAE_deviation = statistics.pstdev(best_per_epoch[0]) 
     tau_deviation = statistics.pstdev(best_per_epoch[1]) 
 
-    print(f'Random Forrest: MAE: {best_MAE} +/- {MAE_deviation}  Kendall\'s Tau: {best_tau} +/- {tau_deviation}')
+    #print(f'Random Forrest: MAE: {best_MAE} +/- {MAE_deviation}  Kendall\'s Tau: {best_tau} +/- {tau_deviation}')
     return [(best_MAE,MAE_deviation),(best_tau,tau_deviation)]
