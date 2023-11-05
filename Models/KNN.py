@@ -20,7 +20,7 @@ def KNNTrain(**kwargs):
     for i in range(5):
         # Local variables for logging results inside epochs
         epoch_lowest_MAE = 99999    # Set defualt to an artifically high number
-        epoch_lowest_tau = 0
+        epoch_log = [[],[]]
 
         # Try every k value within reasont to guanrentee best results
         for k in range(1, 30):
@@ -31,15 +31,16 @@ def KNNTrain(**kwargs):
             if metrics.mean_absolute_error(y_test,y_pred) < epoch_lowest_MAE:
                 epoch_lowest_MAE = metrics.mean_absolute_error(y_test,y_pred)
                 epoch_lowest_tau = stats.kendalltau(y_test, y_pred)[0]
-        
-        # Log and update epoch metrics
-        best_per_epoch[0].append(epoch_lowest_MAE)
-        best_per_epoch[1].append(epoch_lowest_tau)
-        if epoch_lowest_MAE < best_MAE:
-            best_MAE = epoch_lowest_MAE
-            best_tau = epoch_lowest_tau
-    
-    MAE_deviation = statistics.pstdev(best_per_epoch[0]) 
-    tau_deviation = statistics.pstdev(best_per_epoch[1]) 
-    return [(best_MAE,MAE_deviation),(best_tau,tau_deviation)]
+
+        epoch_log[0].append(epoch_lowest_MAE)
+        epoch_log[1].append(epoch_lowest_tau)
+
+
+    MAE_average = statistics.mean(epoch_log[0])
+    Tau_average = statistics.mean(epoch_log[1])
+
+    MAE_deviation = statistics.pstdev(epoch_log[0]) 
+    Tau_deviation = statistics.pstdev(epoch_log[1]) 
+
+    return [(MAE_average,MAE_deviation),(Tau_average,Tau_deviation)]
     print(f'KNN: MAE: {best_MAE} +/- {MAE_deviation}  Kendall\'s Tau: {best_tau} +/- {tau_deviation}')

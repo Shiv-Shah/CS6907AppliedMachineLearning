@@ -13,33 +13,25 @@ def AdaBoostTrain(**kwargs):
     y_test = kwargs['y_test']
 
     # Local variables for logging results
-    best_per_epoch = [[],[]]
-    best_MAE = 99999    # Set defualt to an artifically high number
-    best_tau = 0
+    epoch_log = [[],[]]
 
     # Calculate result 5 times for significance
     for i in range(5):
-        # Local variables for logging results inside epochs
-        epoch_lowest_MAE = 99999    # Set defualt to an artifically high number
-        epoch_lowest_tau = 0
-
         regr = AdaBoostRegressor(random_state=0)
         regr.fit(X_train, np.ravel(y_train))     
         y_pred = regr.predict(X_test)  
 
-        if metrics.mean_absolute_error(y_test,y_pred) < epoch_lowest_MAE:
-                epoch_lowest_MAE = metrics.mean_absolute_error(y_test,y_pred)
-                epoch_lowest_tau = stats.kendalltau(y_test, y_pred)[0]
+        epoch_MAE = metrics.mean_absolute_error(y_test,y_pred)
+        epoch_Tau = stats.kendalltau(y_test, y_pred)[0]
 
-        best_per_epoch[0].append(epoch_lowest_MAE)
-        best_per_epoch[1].append(epoch_lowest_tau)
-
-        if epoch_lowest_MAE < best_MAE:
-            best_MAE = epoch_lowest_MAE
-            best_tau = epoch_lowest_tau
+        epoch_log[0].append(epoch_MAE)
+        epoch_log[1].append(epoch_Tau)
     
-    MAE_deviation = statistics.pstdev(best_per_epoch[0]) 
-    tau_deviation = statistics.pstdev(best_per_epoch[1]) 
+    MAE_average = statistics.mean(epoch_log[0])
+    Tau_average = statistics.mean(epoch_log[1])
+
+    MAE_deviation = statistics.pstdev(epoch_log[0]) 
+    Tau_deviation = statistics.pstdev(epoch_log[1]) 
 
     #print(f'Random Forrest: MAE: {best_MAE} +/- {MAE_deviation}  Kendall\'s Tau: {best_tau} +/- {tau_deviation}')
-    return [(best_MAE,MAE_deviation),(best_tau,tau_deviation)]
+    return [(MAE_average,MAE_deviation),(Tau_average,Tau_deviation)]

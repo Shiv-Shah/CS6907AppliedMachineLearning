@@ -63,6 +63,7 @@ for i in results:
 
 # Print Results in a table
 print('\n')
-print(tabulate(results, headers=['Model', 'Mean Average Error', 'Kendall’s Tau']))
+print(tabulate(results, headers=['Model', 'Average Mean Average Error', 'Kendall’s Tau']))
+print('Results collected over 5 runs of each model')
 
 
