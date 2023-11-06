@@ -33,7 +33,7 @@ python3 main.py
 ## CSAW-M Dataset
 
 - The authors of the CSAW-M dataset have requested that we not share the files without their explicit permission. In order to keep with this request, we have provided intermediary files that obscure the original information(This is only necessary our class evaluations, durring actual submissions to conferences the dataset can be requested at: https://figshare.scilifelab.se/articles/dataset/CSAW-M_An_Ordinal_Classification_Dataset_for_Benchmarking_Mammographic_Masking_of_Cancer/14687271)
-- Data can befound under data/train and data/test.
+- Data can befound under CSAW_M_Subset/lables/CSAW-M_train and CSAW_M_Subset/lables/CSAW-M_test.
 - In the original CSAW-M dataset, the data is pre-split into test and train sets. To keep inline with their tests, we used the same test and train files.
 
 ---
