@@ -33,5 +33,4 @@ def AdaBoostTrain(**kwargs):
     MAE_deviation = statistics.pstdev(epoch_log[0]) 
     Tau_deviation = statistics.pstdev(epoch_log[1]) 
 
-    #print(f'Random Forrest: MAE: {best_MAE} +/- {MAE_deviation}  Kendall\'s Tau: {best_tau} +/- {tau_deviation}')
     return [(MAE_average,MAE_deviation),(Tau_average,Tau_deviation)]

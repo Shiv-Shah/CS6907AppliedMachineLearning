@@ -43,4 +43,3 @@ def KNNTrain(**kwargs):
     Tau_deviation = statistics.pstdev(epoch_log[1]) 
 
     return [(MAE_average,MAE_deviation),(Tau_average,Tau_deviation)]
-    print(f'KNN: MAE: {best_MAE} +/- {MAE_deviation}  Kendall\'s Tau: {best_tau} +/- {tau_deviation}')

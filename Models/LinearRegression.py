@@ -1,11 +1,12 @@
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn import metrics
+import numpy as np
 import scipy.stats as stats
 import statistics
-import numpy as np
 
-# Function to train Gradient Boost regressor and output its Tau and MAE.
-def GradientBoostTrain(**kwargs):
+
+# Function to train a Linear regressor and output its Tau and MAE.
+def LinearTrain(**kwargs):
     # Unpack kwargs
     X_train = kwargs['X_train']
     y_train = kwargs['y_train']
@@ -17,9 +18,9 @@ def GradientBoostTrain(**kwargs):
 
     # Calculate result 5 times for significance
     for i in range(5):
-        regr = GradientBoostingRegressor(random_state=0)
-        regr.fit(X_train, np.ravel(y_train))     
-        y_pred = regr.predict(X_test)  
+        lin = LinearRegression() 
+        lin.fit(X_train, np.ravel(y_train))     
+        y_pred = lin.predict(X_test)  
 
         epoch_MAE = metrics.mean_absolute_error(y_test,y_pred)
         epoch_Tau = stats.kendalltau(y_test, y_pred)[0]
