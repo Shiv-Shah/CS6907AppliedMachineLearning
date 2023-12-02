@@ -5,6 +5,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications import EfficientNetB4
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.efficientnet import preprocess_input
+import pandas as pd
+import tensorflow_datasets as tfds
 #from Utility.CroppingImage import resize_and_save
 
 import numpy as np
@@ -12,42 +14,62 @@ import numpy as np
 from PIL import Image
 import os
 
-# def resize_and_save(input_folder, output_folder, new_width, new_height):
-#     # Create output folder if it doesn't exist
-#     if not os.path.exists(output_folder):
-#         os.makedirs(output_folder)
 
-#     # Loop through all files in the input folder
-#     for filename in os.listdir(input_folder):
-#         if filename.endswith(('.png', '.jpg', '.jpeg', '.gif')):  # Add more extensions if needed
-#             # Construct full file paths
-#             input_path = os.path.join(input_folder, filename)
+# # # Example usage
 
-#             # Open the image
-#             image = Image.open(input_path)
+input_folder_path_train = "images/preprocessed/train"
+output_folder_path_train = "images/preprocessed/train_cropped"
+input_folder_path_test = "images/preprocessed/test"
+output_folder_path_test = "images/preprocessed/test_cropped"
+new_width = 255  # Set the desired width
+new_height = 255  # Set the desired height
 
-#             # Resize the image
-#             resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+def resize_and_break(input_folder, output_folder, new_width, new_height):
+    # Create output folder and subfolders(classes) if they doesn't exist
+    outputs = ['class_1','class_2','class_3','class_4','class_5','class_6','class_7','class_8']
+    if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+    for i in outputs:
+        folder_path = os.path.join(output_folder, i)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
 
-#             # Get the file name (without extension) from the input path
-#             file_name = os.path.splitext(filename)[0]
+    # Loop through all files in the input folder
+    if input_folder == 'images/preprocessed/train':
+        csv_train = os.path.join(input_folder, "CSAW-M_train.csv")
+        df_label = pd.read_csv(csv_train,sep = ';')
+    else:
+        csv_test = os.path.join(input_folder, "CSAW-M_test.csv")
+        df_label = pd.read_csv(csv_test,sep = ';')
 
-#             # Save the resized image to the output folder
-#             output_path = os.path.join(output_folder, f"{file_name}_resized.jpg")
-#             resized_image.save(output_path)
 
+    for filename in os.listdir(input_folder):
+        if filename.endswith(('.png', '.jpg', '.jpeg', '.gif')):  # Add more extensions if needed
+            # Grab label for file
+            label = df_label.loc[df_label['Filename'] == filename, 'Label'].values[0]
 
-# # Example usage
+            # Assign output folder based on label
+            folder_path = os.path.join(os.path.join(output_folder, 'class_'+str(label)))
 
-# input_folder_path_train = "images/preprocessed/train"
-# output_folder_path_train = "images/preprocessed/train_cropped"
-# input_folder_path_test = "images/preprocessed/test"
-# output_folder_path_test = "images/preprocessed/test_cropped"
-# new_width = 255  # Set the desired width
-# new_height = 255  # Set the desired height
+            # Construct full file paths
+            input_path = os.path.join(input_folder, filename)
 
-# resize_and_save(input_folder_path_train, output_folder_path_train, new_width, new_height)
-# resize_and_save(input_folder_path_test, output_folder_path_test, new_width, new_height)
+            # Open the image
+            image = Image.open(input_path)
+
+            # Resize the image
+            resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+
+            # Get the file name (without extension) from the input path
+            file_name = os.path.splitext(filename)[0]
+
+            # Save the resized image to the correct label folder
+            output_path = os.path.join(folder_path, f"{file_name}_resized.jpg")
+            resized_image.save(output_path)
+
+# Uncomment to resize and label data
+#resize_and_break(input_folder_path_train, output_folder_path_train, new_width, new_height)
+#resize_and_break(input_folder_path_test, output_folder_path_test, new_width, new_height)
 
 def EfficentNetB4():
     datagen = ImageDataGenerator(
@@ -61,10 +83,10 @@ def EfficentNetB4():
     directory = 'images/preprocessed/train_cropped/',
     target_size=(380, 380),
     batch_size=32,
-    class_mode = None
+    #class_mode = None
 
 )
-    
+    #NUM_CLASSES = ds_info.features["label"].num_classes
     model = EfficientNetB4(weights='imagenet', include_top=False, input_shape=(255, 255, 3))
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     model.fit(train_generator, epochs=10)
@@ -77,6 +99,7 @@ def EfficentNetB4():
     class_mode = None
     )
     
+    print()
     # Make predictions on the test data
     predictions = model.predict(test_generator)
 
