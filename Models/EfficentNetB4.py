@@ -83,13 +83,27 @@ def EfficentNetB4():
     directory = 'images/preprocessed/train_cropped/',
     target_size=(380, 380),
     batch_size=32,
-    #class_mode = None
+    class_mode="categorical"
+    )
+    test_generator = datagen.flow_from_directory(
+    directory = 'images/preprocessed/test_cropped/',
+    target_size=(380, 380),
+    batch_size=1,
+    class_mode="categorical"
 
 )
     #NUM_CLASSES = ds_info.features["label"].num_classes
     model = EfficientNetB4(weights='imagenet', include_top=False, input_shape=(255, 255, 3))
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    model.fit(train_generator, epochs=10)
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    #model.fit(train_generator, epochs=10)
+    STEP_SIZE_TRAIN=train_generator.n//train_generator.batch_size
+    STEP_SIZE_VALID=test_generator.n//test_generator.batch_size
+    model.fit_generator(generator=train_generator,
+                        steps_per_epoch=STEP_SIZE_TRAIN,
+                        validation_data=test_generator,
+                        validation_steps=1,
+                        epochs=10
+    )
     
     # Assuming you have a test generator as well
     test_generator = datagen.flow_from_directory(
