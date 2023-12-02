@@ -5,6 +5,10 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications import EfficientNetB4
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.efficientnet import preprocess_input
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
+import tensorflow as tf
+#from sklearn.model_selection import train_test_split
+import pandas as pd
 #from Utility.CroppingImage import resize_and_save
 
 import numpy as np
@@ -16,7 +20,7 @@ import os
 #     # Create output folder if it doesn't exist
 #     if not os.path.exists(output_folder):
 #         os.makedirs(output_folder)
-
+        
 #     # Loop through all files in the input folder
 #     for filename in os.listdir(input_folder):
 #         if filename.endswith(('.png', '.jpg', '.jpeg', '.gif')):  # Add more extensions if needed
@@ -34,6 +38,8 @@ import os
 
 #             # Save the resized image to the output folder
 #             output_path = os.path.join(output_folder, f"{file_name}_resized.jpg")
+            
+            
 #             resized_image.save(output_path)
 
 
@@ -50,6 +56,7 @@ import os
 # resize_and_save(input_folder_path_test, output_folder_path_test, new_width, new_height)
 
 def EfficentNetB4():
+
     datagen = ImageDataGenerator(
     rescale=1./255,
     shear_range=0.2,
@@ -64,10 +71,13 @@ def EfficentNetB4():
     class_mode = None
 
 )
+    train_csv = pd.read_csv("C:/Users/mathw/OneDrive/Desktop/GWU/CS6907AppliedMachineLearning/labels/labels/CSAW-M_train.csv")
+    test_csv = pd.read_csv("C:/Users/mathw/OneDrive/Desktop/GWU/CS6907AppliedMachineLearning/labels/labels/CSAW-M_test.csv")
+    train_dataset = tf.data.Dataset.from_tensor_slices(train_generator,train_csv)
     
     model = EfficientNetB4(weights='imagenet', include_top=False, input_shape=(255, 255, 3))
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    model.fit(train_generator, epochs=10)
+    model.fit(train_dataset, epochs=10)
     
     # Assuming you have a test generator as well
     test_generator = datagen.flow_from_directory(
@@ -76,22 +86,24 @@ def EfficentNetB4():
     batch_size=32,
     class_mode = None
     )
+
+    test_dataset = tf.data.Dataset.from_tensor_slices(test_generator,test_csv)
     
     # Make predictions on the test data
-    predictions = model.predict(test_generator)
+    predictions = model.predict(test_dataset)
 
     # Print the first few predictions
     print("Predictions:")
     print(predictions[:5])
 
     # Get class indices from the generator
-    class_indices = test_generator.class_indices
+    class_indices = test_dataset.class_indices
 
     # Convert predictions to class labels
     predicted_classes = [list(class_indices.keys())[i.argmax()] for i in predictions]
 
     # Get true labels from the generator
-    true_labels = test_generator.classes
+    true_labels = test_dataset.classes
 
     # Print the first few true labels and predicted labels
     print("\nTrue Labels:")
