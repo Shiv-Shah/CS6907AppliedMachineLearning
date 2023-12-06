@@ -10,7 +10,7 @@ from Models.GradientBoost import GradientBoostTrain
 from Models.AdaBoost import AdaBoostTrain
 from tabulate import tabulate
 from Models.EfficentNetB4 import EfficentNetB4Train
-
+import torch.utils.data as data_utils
 import torch
 from torchvision import transforms, datasets, models
 
@@ -82,10 +82,14 @@ def classModels():
 
 
 def DeepLearning():
-    input_folder_path_train = "/content/drive/MyDrive/images/preprocessed/train"
-    output_folder_path_train = "/content/drive/MyDrive/images/preprocessed/train_cropped"
-    input_folder_path_test = "/content/drive/MyDrive/images/preprocessed/test"
-    output_folder_path_test = "/content/drive/MyDrive/images/preprocessed/test_cropped"
+    #input_folder_path_train = "/content/drive/MyDrive/images/preprocessed/train"
+    #output_folder_path_train = "/content/drive/MyDrive/images/preprocessed/train_cropped"
+    #input_folder_path_test = "/content/drive/MyDrive/images/preprocessed/test"
+    #output_folder_path_test = "/content/drive/MyDrive/images/preprocessed/test_cropped"
+    input_folder_path_train = "images/preprocessed/train"
+    output_folder_path_train = "images/preprocessed/train_cropped"
+    input_folder_path_test = "images/preprocessed/test"
+    output_folder_path_test = "images/preprocessed/test_cropped"    
     new_width = 255  # Set the desired width
     new_height = 255  # Set the desired height
 
@@ -94,21 +98,26 @@ def DeepLearning():
     #esize_and_break(input_folder_path_test, output_folder_path_test, new_width, new_height)
 
 
-    # Define your dataset and dataloaders
+    # Define your dataset of images
     data_transform = transforms.Compose([
         transforms.Resize((380, 380)),
         transforms.ToTensor(),
     ])
-
     # Replace 'your_dataset_directory' with the path to your dataset
     train_dataset = datasets.ImageFolder(root=output_folder_path_train, transform=data_transform)
     val_dataset = datasets.ImageFolder(root=output_folder_path_test, transform=data_transform)
+    
+    indices_train = torch.arange(500)
+    indices_test = torch.arange(200)
 
-    data_object = {'train_dataset':train_dataset, 'val_dataset':val_dataset}
+    train_dataset_sample = data_utils.Subset(train_dataset,indices_train)
+    val_dataset_sample = data_utils.Subset(val_dataset,indices_test)
+
+    data_object = {'train_dataset':train_dataset_sample, 'val_dataset':val_dataset_sample}
 
     # 
-    EfficentNetB4Train(data_object)
+    EfficentNetB4Train(**data_object)
     
-
+DeepLearning()
 
 

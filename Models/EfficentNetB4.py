@@ -9,14 +9,14 @@ from PIL import Image
 import pandas as pd
 
 def EfficentNetB4Train(**kwargs):
-    
+
     #Unpack kwargs
     train_dataset = kwargs['train_dataset']
     val_dataset = kwargs['val_dataset']
 
     # Create data loader objects
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4)
-    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=4)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=0)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
 
     # Instantiate the model
     model = models.efficientnet_b4(False)

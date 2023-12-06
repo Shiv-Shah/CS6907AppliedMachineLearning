@@ -59,8 +59,8 @@ def resize_and_break(input_folder, output_folder, new_width, new_height):
             resized_image.save(output_path)
 
 # Uncomment to resize and label data
-resize_and_break(input_folder_path_train, output_folder_path_train, new_width, new_height)
-resize_and_break(input_folder_path_test, output_folder_path_test, new_width, new_height)
+#resize_and_break(input_folder_path_train, output_folder_path_train, new_width, new_height)
+#resize_and_break(input_folder_path_test, output_folder_path_test, new_width, new_height)
 
 
 
