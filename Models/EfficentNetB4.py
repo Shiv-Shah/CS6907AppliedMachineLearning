@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms, datasets, models
+from torchvision.models._api import WeightsEnum
+from torch.hub import load_state_dict_from_url
 from efficientnet_pytorch import EfficientNet
 import os
 from PIL import Image
@@ -15,11 +17,27 @@ def EfficentNetB4Train(**kwargs):
     val_dataset = kwargs['val_dataset']
 
     # Create data loader objects
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=0)
-    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
+    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=6)
+    val_loader = DataLoader(val_dataset, batch_size= 16, shuffle=False, num_workers=6)
+
+
+    #from torchvision.models import efficientnet_b4, EfficientNet_b4_Weights
+    
+
+    def get_state_dict(self, *args, **kwargs):
+        kwargs.pop("check_hash")
+        return load_state_dict_from_url(self.url, *args, **kwargs)
+    WeightsEnum.get_state_dict = get_state_dict
+
+    #efficientnet_b0(weights=EfficientNet_B0_Weights.IMAGENET1K_V1)
+    #efficientnet_b0(weights="DEFAULT")
 
     # Instantiate the model
-    model = models.efficientnet_b4(False)
+    print(f"Is Cuda supported: {torch.cuda.is_available()}")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = models.efficientnet_b4(weights=models.EfficientNet_B4_Weights.IMAGENET1K_V1)
+    #model = models.efficientnet_b4(weights="DEFAULT")
+    model = model.to(device)
 
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -64,5 +82,6 @@ def EfficentNetB4Train(**kwargs):
         print(f"Validation Accuracy: {accuracy * 100:.2f}%")
 
     # Save the trained model
-    torch.save(model.state_dict(), 'efficientnetb4_model.pth')
+    torch.cuda.empty_cache() 
+    #torch.save(model.state_dict(), 'efficientnetb4_model.pth')
 
