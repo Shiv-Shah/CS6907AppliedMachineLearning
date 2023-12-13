@@ -2,11 +2,9 @@
 
 This repository contains code for _Hybrid Models and Breast Cancer Masking_. Source code for training models to estimate the mammographic masking levels are made available here.
 
-Right now this resposity contains only the code for the 6 classic machine learning models we are applying to the CSAW-M dataset.
+Right now this resposity contains only the code for the 6 classic machine learning models and 4 Deep Learning models we are applying to the CSAW-M dataset.
 
-Completed Models: KNN, RBF SVM, Linear Regression, Random Forrest, Gradient Boost, and Ada Boost
-
-To Be Completed Models: EfficientNet-B4, ConvNext-T, Twins-SVT-S, PoolFormer-S36, and MedVit
+Completed Models: KNN, RBF SVM, Linear Regression, Random Forrest, Gradient Boost, Ada Boost, EfficientNet-B4, ConvNext-T, Vit L, and MedVit
 
 ---
 ## Installation
@@ -28,6 +26,9 @@ To training and test algorithms, run the following while in the CS6907AppliedMac
 ```bash
 python3 main.py
 ```
+
+### Main.py
+Main.py runs both the classic and deep learning models sequentially. It also crops the data for the deep learning models.
 ---
 
 ## CSAW-M Dataset

@@ -1,139 +1,140 @@
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications.convnext import ConvNeXtTiny
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.efficientnet import preprocess_input
-import os
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
+from torchvision import transforms, datasets, models
+from efficientnet_pytorch import EfficientNet
+import torch.utils.data as data_utils
+from PIL import Image
+import pandas as pd
+from sklearn import metrics
+import scipy.stats as stats
+import statistics
 import numpy as np
+from torchvision.models._api import WeightsEnum
+from torch.hub import load_state_dict_from_url
 
+from sklearn.metrics import mean_absolute_error
 
-def ConvNextT():
-    datagen = ImageDataGenerator(
-    rescale=1./255,
-    shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True
-)
+def ConvNextT(**kwargs):
+    # Input size for model
+    new_width = 380  # Set the desired width
+    new_height = 380  # Set the desired height
+
+    # Unpack image loaction
+    train_path = kwargs['train_path']
+    test_path = kwargs['test_path']
+
+    # Define your dataset and dataloaders
+    data_transform = transforms.Compose([
+        transforms.Resize((new_width, new_height)),
+        transforms.ToTensor(),
+    ])
+    train_dataset = datasets.ImageFolder(root=train_path, transform=data_transform)
+    val_dataset = datasets.ImageFolder(root=test_path, transform=data_transform)
     
-    train_generator = datagen.flow_from_directory(
-    directory = 'images/preprocessed/train_cropped/',
-    target_size=(225, 225),
-    batch_size=32,
-    class_mode = None
+    # Limit size to speed up training 
+    indices_train = torch.arange(4000)
+    indices_test = torch.arange(400)
 
-)
+    train_dataset_sample = data_utils.Subset(train_dataset,indices_train)
+    test_dataset_sample = data_utils.Subset(val_dataset,indices_test)
+    train_loader = DataLoader(train_dataset_sample, batch_size=16, shuffle=True, num_workers=8)
+    val_loader = DataLoader(test_dataset_sample, batch_size= 16, shuffle=False, num_workers=8)
+
+
+    def get_state_dict(self, *args, **kwargs):
+        kwargs.pop("check_hash")
+        return load_state_dict_from_url(self.url, *args, **kwargs)
+    WeightsEnum.get_state_dict = get_state_dict
+
+    # Instantiate the model
+    print(f"Is Cuda supported: {torch.cuda.is_available()}")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = models.convnext_tiny(weights=models.ConvNeXt_Tiny_Weights.IMAGENET1K_V1)
+    model = model.to(device)
+
+    # Define loss function and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.0000005)
+
+    # Training loop
+    num_runs = 5     # You can increase this number for better training
+    num_epochs = 15  # You can increase this number for better training
+
+    for run in range(num_runs):
+        for epoch in range(num_epochs):
+            # Local variables for logging results inside epochs
+            epoch_log = [[],[]]
+            model.train()
+            running_loss = 0.0
+
+            # Train for epoch
+            for inputs, labels in train_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
+
+                optimizer.zero_grad()
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                running_loss += loss.item()
+
+            print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {running_loss / len(train_loader)}")
+
+            # Test for epoch
+            model.eval()
+            correct = 0
+            total = 0
+            with torch.no_grad():
+                all_preds = []
+                all_labels = []
+                for inputs, labels in val_loader:
+                    inputs, labels = inputs.to(device), labels.to(device)
+
+                    outputs = model(inputs)
+                    _, predicted = torch.max(outputs, 1)
+                    inputs, labels = inputs.to('cpu'), labels.to('cpu')
+                    predicted = predicted.to('cpu')
+                    [all_preds.append(i) for i in predicted]
+                    [all_labels.append(i) for i in labels]
+
+                    total += labels.size(0)
+                    correct += (predicted == labels).sum().item()
+
+            # Log data
+
+            # Calc tau
+            tau, p_value = stats.kendalltau(all_preds, all_labels)
+            epoch_Tau = tau
+
+            # Calc mae
+            label_set = list(set(all_labels))
+            all_mae = []
+            for label in label_set:
+                index_list = [i for i, x in enumerate(all_labels) if x == label]
+                pred_list = [all_preds[i] for i in index_list]
+                label_list = [all_labels[i] for i in index_list]
+                mae = mean_absolute_error(pred_list, label_list)
+                all_mae.append(mae)
+            epoch_MAE = np.average(all_mae)
+
+            accuracy = correct / total
+            print(f"Validation Accuracy: {accuracy * 100:.2f}%")
+
+            epoch_log[0].append(epoch_MAE)
+            epoch_log[1].append(epoch_Tau)
+
+
+    MAE_average = statistics.mean(epoch_log[0])
+    Tau_average = statistics.mean(epoch_log[1])
+
+    MAE_deviation = statistics.pstdev(epoch_log[0])
+    Tau_deviation = statistics.pstdev(epoch_log[1])
+
+    # Save the trained model
+    torch.save(model.state_dict(), 'convNextT.pth')
+    torch.cuda.empty_cache()
+    return [(MAE_average,MAE_deviation),(Tau_average,Tau_deviation)]
     
-    model = ConvNeXtTiny(weights='imagenet', include_top=False, input_shape=(255, 255, 3))
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    model.fit(train_generator, epochs=10)
-    
-    # Assuming you have a test generator as well
-    test_generator = datagen.flow_from_directory(
-    'images/preprocessed/test_cropped/',
-    target_size=(225, 225),
-    batch_size=32,
-    class_mode = None
-    )
-    
-    # Make predictions on the test data
-    predictions = model.predict(test_generator)
-
-    # Print the first few predictions
-    print("Predictions:")
-    print(predictions[:5])
-
-    # Get class indices from the generator
-    class_indices = test_generator.class_indices
-
-    # Convert predictions to class labels
-    predicted_classes = [list(class_indices.keys())[i.argmax()] for i in predictions]
-
-    # Get true labels from the generator
-    true_labels = test_generator.classes
-
-    # Print the first few true labels and predicted labels
-    print("\nTrue Labels:")
-    print(true_labels[:5])
-    print("\nPredicted Labels:")
-    print(predicted_classes[:5])
-    
-    # Evaluate the model using the test generator
-    evaluation_result = model.evaluate(test_generator)
-
-    print("Test Loss:", evaluation_result[0])
-    print("Test Accuracy:", evaluation_result[1])
-    
-
-
-def preProcessData(input_directory):
-    preprocessed_images = []
-    # Loop through all files in the input folder
-    for filename in os.listdir(input_directory):
-        if filename.endswith(('.png', '.jpg', '.jpeg', '.gif')):  # Add more extensions if needed
-            # Construct full file paths
-            input_path = os.path.join(input_directory, filename)
-            img = image.load_img(input_path, target_size=(380, 380))
-            img_array = image.img_to_array(img)
-            img_array = preprocess_input(img_array[None, 32])
-
-            preprocessed_images.append(img_array)
-    return np.vstack(preprocessed_images)
-
-def ConvNextTV2():
-    input_folder_path_train = "images/preprocessed/train_cropped"
-    # output_folder_path_train = "images/preprocessed/train_cropped"
-    input_folder_path_test = "images/preprocessed/test_cropped"
-    # output_folder_path_test = "images/preprocessed/test_cropped"
-
-    X = preProcessData(input_folder_path_train)
-    Y = preProcessData(input_folder_path_test)
-    
-
-
-
-    datagen = ImageDataGenerator(
-    rescale=1./255,
-    shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True
-)
-    
-
-   
-    model = ConvNeXtTiny(weights='imagenet', include_top=False, input_shape=(255, 255, 3))
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    model.fit(X, epochs=10)
-    
-    # Assuming you have a test generator as well
- 
-    
-    # Make predictions on the test data
-    predictions = model.predict(Y)
-
-    # Print the first few predictions
-    print("Predictions:")
-    print(predictions[:5])
-
-    # # Get class indices from the generator
-    # class_indices = test_generator.class_indices
-
-    # # Convert predictions to class labels
-    # predicted_classes = [list(class_indices.keys())[i.argmax()] for i in predictions]
-
-    # # Get true labels from the generator
-    # true_labels = test_generator.classes
-
-    # Print the first few true labels and predicted labels
-    # print("\nTrue Labels:")
-    # print(true_labels[:5])
-    # print("\nPredicted Labels:")
-    # print(predicted_classes[:5])
-    
-    # Evaluate the model using the test generator
-    evaluation_result = model.evaluate(Y)
-
-    print("Test Loss:", evaluation_result[0])
-    print("Test Accuracy:", evaluation_result[1])
-
-
-
-ConvNextT()

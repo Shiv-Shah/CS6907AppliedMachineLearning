@@ -16,10 +16,10 @@ from torch.hub import load_state_dict_from_url
 
 from sklearn.metrics import mean_absolute_error
 
-def EfficentNetB4(**kwargs):
+def ViT_L(**kwargs):
     # Input size for model
-    new_width = 380  # Set the desired width
-    new_height = 380  # Set the desired height
+    new_width = 224  # Set the desired width
+    new_height = 224  # Set the desired height
 
     # Unpack image loaction
     train_path = kwargs['train_path']
@@ -51,7 +51,7 @@ def EfficentNetB4(**kwargs):
     # Instantiate the model
     print(f"Is Cuda supported: {torch.cuda.is_available()}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = models.efficientnet_b4(weights=models.EfficientNet_B4_Weights.IMAGENET1K_V1)
+    model = models.vit_l_32(weights=models.ViT_L_32_Weights.IMAGENET1K_V1)
     model = model.to(device)
 
     # Define loss function and optimizer
