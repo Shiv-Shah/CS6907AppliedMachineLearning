@@ -146,8 +146,23 @@ def DeepLearning():
 
     data_object = {'train_path':output_folder_path_train, 'test_path':output_folder_path_test}
 
-    # 
-    EfficentNetB4Train(**data_object)
+    results = []
+
+    # EfficientNet B4
+    EfficentNetB4_results = EfficentNetB4(**data_object)
+    results.append(['EfficentNetB4_results', EfficentNetB4_results[0], EfficentNetB4_results[1]])
+    # ConvNextT
+    ConvNextT_results = ConvNextT(**data_object)
+    results.append(['ConvNextT_results', ConvNextT_results[0], ConvNextT_results[1]])
+    # ViT L
+    ViT_L = ViT_L(**data_object)
+    results.append(['ViT_L_results', ViT_L[0], ViT_L[1]])
+    # MedVit
+    # For medVit run the notebook
+    print('\n')
+    print(tabulate(results, headers=['Model', 'Average Mean Average Error', 'Kendall’s Tau']))
+    print('Results collected over 5 runs of each model')
+
     
 DeepLearning()
 

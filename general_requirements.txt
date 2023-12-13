@@ -6,3 +6,5 @@ efficientnet_pytorch
 torch
 torchvision
 Pillow
+einops
+timm
