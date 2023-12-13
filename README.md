@@ -29,6 +29,7 @@ python3 main.py
 
 ### Main.py
 Main.py runs both the classic and deep learning models sequentially. It also crops the data for the deep learning models.
+
 ---
 
 ## CSAW-M Dataset
